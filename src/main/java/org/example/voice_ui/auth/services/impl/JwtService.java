@@ -8,13 +8,10 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -32,14 +29,7 @@ public class JwtService {
 
     public String generateToken(final ObjectId id, final String username, final Set<RoleEnum> roles) {
         final Instant instant = Instant.now();
-        final JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer(issuer)
-                .issuedAt(instant)
-                .expiresAt(instant.plus(expirationJwt, ChronoUnit.HOURS))
-                .subject(id.toString())
-                .claim(AUTHORITIES_CLAIM, roles)
-                .claim(USERNAME_CLAIM, username)
-                .build();
+        final JwtClaimsSet claims = JwtClaimsSet.builder().issuer(issuer).issuedAt(instant).expiresAt(instant.plus(expirationJwt, ChronoUnit.HOURS)).subject(id.toString()).claim(AUTHORITIES_CLAIM, roles).claim(USERNAME_CLAIM, username).build();
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 }

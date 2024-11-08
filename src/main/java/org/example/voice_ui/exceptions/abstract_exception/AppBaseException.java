@@ -7,7 +7,7 @@ import org.example.voice_ui.exceptions.handler.ErrorCodes;
 @Getter
 @Setter
 public class AppBaseException extends RuntimeException {
-    private ErrorCodes code;
+    private final ErrorCodes code;
 
     public AppBaseException(String message, ErrorCodes code) {
         super(message);
