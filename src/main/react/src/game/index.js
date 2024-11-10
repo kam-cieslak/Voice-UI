@@ -48,9 +48,9 @@ class Snake {
 
   didLose() {
     if (
-      this.segments[0].x > 37 ||
+      this.segments[0].x > 38 ||
       this.segments[0].x < 0 ||
-      this.segments[0].y > 37 ||
+      this.segments[0].y > 38 ||
       this.segments[0].y < 0
     ) {
       this.moveDir = {
@@ -122,6 +122,45 @@ function timeout(milis) {
     setTimeout(resolve, milis);
   });
 }
+function determineDirections(dir) {
+  if (!gameRunning) {
+    snake.moveDir = {
+      x: 0,
+      y: 0,
+    };
+    return;
+  }
+  dir = dir.replaceAll(" ", "").toLowerCase();
+  if (dir.includes("up")) {
+    if (snake.moveDir.x !== 1) {
+      snake.moveDir = {
+        x: -1,
+        y: 0,
+      };
+    }
+  } else if (dir.includes("down")) {
+    if (snake.moveDir.x !== -1) {
+      snake.moveDir = {
+        x: 1,
+        y: 0,
+      };
+    }
+  } else if (dir.includes("left")) {
+    if (snake.moveDir.y !== 1) {
+      snake.moveDir = {
+        x: 0,
+        y: -1,
+      };
+    }
+  } else if (dir.includes("right")) {
+    if (snake.moveDir.y !== -1) {
+      snake.moveDir = {
+        x: 0,
+        y: 1,
+      };
+    }
+  }
+}
 
 function render() {
   gameBoard.innerHTML = "";
@@ -144,40 +183,42 @@ function render() {
 }
 
 function init() {
+  const recognition = new webkitSpeechRecognition();
+  const directions = ["up", "down", "left", "right"];
+  const grammar = `#JSGF V1.0; grammar colors; public <color> = ${directions.join(
+    " | "
+  )}`;
+  const speechRecognitionList = new webkitSpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+  recognition.continuous = true;
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onresult = function (e) {
+    gameRunning = true;
+    determineDirections(e.results[e.results.length - 1][0].transcript);
+  };
+  window.addEventListener("focus", function () {
+    recognition.start();
+  });
+  window.addEventListener("blur", function () {
+    recognition.stop();
+  });
   window.addEventListener("keydown", function (e) {
     gameRunning = true;
     switch (e.key) {
       case "ArrowUp":
-        if (snake.moveDir.x !== 1) {
-          snake.moveDir = {
-            x: -1,
-            y: 0,
-          };
-        }
+        determineDirections("up");
         break;
       case "ArrowDown":
-        if (snake.moveDir.x !== -1) {
-          snake.moveDir = {
-            x: 1,
-            y: 0,
-          };
-        }
+        determineDirections("down");
         break;
       case "ArrowLeft":
-        if (snake.moveDir.y !== 1) {
-          snake.moveDir = {
-            x: 0,
-            y: -1,
-          };
-        }
+        determineDirections("left");
         break;
       case "ArrowRight":
-        if (snake.moveDir.y !== -1) {
-          snake.moveDir = {
-            x: 0,
-            y: 1,
-          };
-        }
+        determineDirections("right");
         break;
     }
     console.log(gameRunning);
@@ -195,6 +236,7 @@ async function gameLoop() {
           type: "GAME_OVER",
           data: String(score),
         });
+        score = 0;
         gameRunning = false;
       }
       if (snake.didCollide(applePos)) {
@@ -206,7 +248,7 @@ async function gameLoop() {
         placeApple();
       }
     }
-    await timeout(150);
+    await timeout(500);
   }
 }
 init();

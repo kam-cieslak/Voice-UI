@@ -34,6 +34,8 @@ export default function GamePage() {
       } else if (message.data.type === "GAME_OVER") {
         setScore(Number(message.data.data));
         setDidLose(true);
+      } else if (message.data.type === "PLAY_AGAIN") {
+        playAgain();
       }
     };
 
@@ -46,6 +48,7 @@ export default function GamePage() {
 
   function playAgain() {
     setDidLose(false);
+    setScore(0);
   }
 
   return (
