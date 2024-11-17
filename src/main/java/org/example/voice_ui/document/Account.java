@@ -1,6 +1,8 @@
 package org.example.voice_ui.document;
 
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.example.voice_ui.util.RoleEnum;
 import org.example.voice_ui.util.validator.Password;
@@ -25,7 +27,10 @@ public class Account extends AbstractDocument {
     @ToString.Exclude
     private String password;
 
-    private PersonalData personalData;
+    @NotBlank()
+    @Email()
+    @Indexed(unique = true)
+    private String email;
 
     @Setter(AccessLevel.NONE)
     private Set<RoleEnum> roles;

@@ -42,11 +42,12 @@ public class SecurityConfig {
     private static final String PREFIX = "ROLE_";
     private static final String AUTHORITIES_CLAIM = "authorities";
     private static final String ALLOWED_ORIGINS = "*";
-    private static final String ALLOWED_METHODS = "GET,POST,PUT,DELETE,PATCH";
+    private static final String ALLOWED_METHODS = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
                 .build();

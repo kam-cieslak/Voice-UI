@@ -63,8 +63,8 @@ export default function GamePage() {
       )}
       <iframe
         ref={ref}
-        width={width / 2.5}
-        height={width / 2.5}
+        width={width / 3}
+        height={width / 3}
         src="/src/game/index.html"
         style={{
           overflow: didLose ? "hidden" : "auto",

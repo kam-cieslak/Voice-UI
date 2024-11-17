@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AccountControllerImpl implements AccountController {
 
-    @Override
+ @Override
     public ResponseEntity<String> test() {
         return ResponseEntity.status(HttpStatus.OK).body("Test");
     }
