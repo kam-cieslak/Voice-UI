@@ -8,7 +8,7 @@ export type TokenType = {
     token: string
 }
 
-export type LeaderBoardType = {
-    username: string,
+export type GameScoreType = {
+    username: string | null,
     score: number
 }

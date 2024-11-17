@@ -28,7 +28,7 @@ export const useAuth = () => {
 
     const register = async (data: RegisterSchema) => {
         try {
-            const response = await apiWithConfig.post<TokenType>("/auth/sign-up", {
+            await apiWithConfig.post<TokenType>("/auth/sign-up", {
                 username: data.username,
                 email: data.email,
                 password: data.password
