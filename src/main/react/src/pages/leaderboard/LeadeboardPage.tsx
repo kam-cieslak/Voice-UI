@@ -8,13 +8,22 @@ import {
     TableRow,
     Paper,
 } from "@mui/material";
+import {useEffect, useState} from "react";
+import {useScore} from "../../hooks/useScore.ts";
 
 const LeadeboardPage = () => {
-    const leaderboard: LeaderBoardType[] = [
-        { username: "Messi", score: 100 },
-        { username: "Ronaldo", score: 95 },
-        { username: "Mbappe", score: 90 },
-    ];
+    const [leaderboard, setLeaderboard] = useState<LeaderBoardType[]>([]);
+    const {getLeaderboard} = useScore();
+
+    const loadLeaderboard = async() => {
+        const data = await getLeaderboard();
+        setLeaderboard(data);
+    }
+
+    useEffect(() => {
+        loadLeaderboard();
+    }, []);
+
     return (
         <TableContainer component={Paper}>
             <Table>
@@ -27,7 +36,7 @@ const LeadeboardPage = () => {
                 <TableBody>
                     {leaderboard.map((entry,index) => (
                         <TableRow key={index}>
-                            <TableCell>{entry.username}</TableCell>
+                            <TableCell>{entry.login}</TableCell>
                             <TableCell>{entry.score}</TableCell>
                         </TableRow>
                         ))}

@@ -11,3 +11,8 @@ export type TokenType = {
 export type GameScoreType = {
     score: number
 }
+
+export type LeaderboardType = {
+    login: string,
+    score: number
+}
