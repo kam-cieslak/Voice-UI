@@ -20,6 +20,7 @@ export const NavigationBar = () => {
                             <Button color="inherit" onClick={() => navigate('/game')}>Game</Button>
                             <Button color="inherit" onClick={() => navigate('/leaderboard')}>Leaderboard</Button>
                             <Typography flexGrow={1}/>
+                            {username && <Typography paddingRight={"20px"}>User: {username}</Typography>}
                             <Button color="inherit" onClick={() => logout()}>Log out</Button>
                         </>
                     }

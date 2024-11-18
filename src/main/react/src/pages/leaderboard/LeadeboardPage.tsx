@@ -1,4 +1,4 @@
-import {LeaderBoardType} from "../../types/User.ts";
+import {LeaderboardType} from "../../types/User.ts";
 import {
     Table,
     TableBody,
@@ -12,7 +12,7 @@ import {useEffect, useState} from "react";
 import {useScore} from "../../hooks/useScore.ts";
 
 const LeadeboardPage = () => {
-    const [leaderboard, setLeaderboard] = useState<LeaderBoardType[]>([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardType[]>([]);
     const {getLeaderboard} = useScore();
 
     const loadLeaderboard = async() => {
@@ -29,8 +29,8 @@ const LeadeboardPage = () => {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Username</TableCell>
-                        <TableCell>Score</TableCell>
+                        <TableCell style={{fontWeight: 'bold'}}>Username</TableCell>
+                        <TableCell style={{fontWeight: 'bold'}}>Score</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
