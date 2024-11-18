@@ -12,7 +12,6 @@ export default function GamePage() {
   const [didLose, setDidLose] = useState<boolean>(false);
   const [width, _] = useWindowSize();
   const ref = useRef<HTMLIFrameElement>(null);
-  const username = localStorage.getItem("username");
   const {sendScore} = useScore();
 
   useEffect(function () {
@@ -37,7 +36,7 @@ export default function GamePage() {
       } else if (message.data.type === "GAME_OVER") {
         setScore(Number(message.data.data));
         setDidLose(true);
-        sendScore({username: username, score: Number(message.data.data)});
+        sendScore({score: Number(message.data.data)});
       } else if (message.data.type === "PLAY_AGAIN") {
         playAgain();
       }

@@ -1,12 +1,10 @@
 package org.example.voice_ui.logic_layer.services;
 
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.example.voice_ui.document.Score;
-import org.example.voice_ui.logic_layer.repositories.AccountRepository;
 import org.example.voice_ui.logic_layer.repositories.ScoreRepository;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +15,7 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
 
     public Score getScoreByAccount(String login) {
-        return scoreRepository.findAllByLoginAndScoreDesc(login)
+        return scoreRepository.findAllByLoginOrderByScoreDesc(login)
                 .stream()
                 .findFirst()
                 .orElse(null);
@@ -30,7 +28,7 @@ public class ScoreService {
     }
 
     public List<Score> getLeaderboard() {
-        return scoreRepository.findAllOrderByScoreDesc(PageRequest.of(0, 10)).
+        return scoreRepository.findAll(PageRequest.of(0, 10, Sort.by("score").descending())).
                 getContent();
     }
 }

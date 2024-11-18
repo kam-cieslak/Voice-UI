@@ -9,6 +9,5 @@ export type TokenType = {
 }
 
 export type GameScoreType = {
-    username: string | null,
     score: number
 }
