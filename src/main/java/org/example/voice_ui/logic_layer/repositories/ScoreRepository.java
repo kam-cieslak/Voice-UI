@@ -11,5 +11,6 @@ import java.util.List;
 public interface ScoreRepository extends MongoRepository<Score, ObjectId> {
     List<Score> findAllByLoginOrderByScoreDesc(String login);
     Page<Score> findAll(Pageable pageable);
+    void deleteAllByLogin(String login);
     Boolean existsByScoreGreaterThanAndLogin(Integer score, String login);
 }

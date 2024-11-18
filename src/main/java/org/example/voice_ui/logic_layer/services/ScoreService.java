@@ -23,6 +23,7 @@ public class ScoreService {
 
     public void addScore(Score score) {
         if(!scoreRepository.existsByScoreGreaterThanAndLogin(score.getScore(),score.getLogin())){
+            scoreRepository.deleteAllByLogin(score.getLogin());
             scoreRepository.save(score);
         }
     }
