@@ -8,6 +8,7 @@ import LoginPage from "./pages/login/LoginPage.tsx";
 import Auth from "./layouts/Auth.tsx";
 import LeadeboardPage from "./pages/leaderboard/LeadeboardPage.tsx";
 import RegisterPage from "./pages/register/RegisterPage.tsx";
+import { RecognitionContext } from "./hooks/RecognitionContext.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,31 +20,31 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        Component: LoginPage
+        Component: LoginPage,
       },
       {
         path: "/register",
-        Component: RegisterPage
+        Component: RegisterPage,
       },
       {
         path: "/game",
-        Component: Auth,
+        //        Component: Auth,
         children: [
           {
             path: "/game",
-            Component: GamePage
-          }
-        ]
+            Component: GamePage,
+          },
+        ],
       },
       {
         path: "/leaderboard",
         Component: Auth,
         children: [
           {
-            path: '/leaderboard',
-            Component: LeadeboardPage
-          }
-        ]
+            path: "/leaderboard",
+            Component: LeadeboardPage,
+          },
+        ],
       },
     ],
   },
@@ -51,6 +52,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router}></RouterProvider>
-  </StrictMode>
+    <RecognitionContext>
+      <RouterProvider router={router}></RouterProvider>
+    </RecognitionContext>
+  </StrictMode>,
 );

@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import useWindowSize from "../../hooks/useWindowSize";
-import {useScore} from "../../hooks/useScore.ts";
+import { useScore } from "../../hooks/useScore.ts";
+import { useRecognition } from "../../hooks/RecognitionContext.tsx";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   type: string;
@@ -8,37 +10,37 @@ type Message = {
 };
 
 export default function GamePage() {
-  const [score, setScore] = useState<number>(0);
-  const [didLose, setDidLose] = useState<boolean>(false);
   const [width, _] = useWindowSize();
+  const { start, end } = useRecognition();
   const ref = useRef<HTMLIFrameElement>(null);
-  const {sendScore} = useScore();
+  const { sendScore } = useScore();
+  const navigate = useNavigate();
+
+  useEffect(
+    function () {
+      ref.current?.focus();
+    },
+    [ref],
+  );
 
   useEffect(function () {
-    ref.current?.focus(); 
-  }, [ref]);
-
-  if (didLose) {
-    if (ref.current) {
-      ref.current.blur();
-    }
-  } else {
-    if (ref.current) {
-      ref.current.focus();
-    }
-  }
+    end();
+  }, []);
 
   useEffect(function () {
-    const handler = function (message: MessageEvent<Message>) {
-      console.log(message);
-      if (message.data.type === "SCORE_POINT") {
-        setScore(Number(message.data.data));
-      } else if (message.data.type === "GAME_OVER") {
-        setScore(Number(message.data.data));
-        setDidLose(true);
-        sendScore({score: Number(message.data.data)});
-      } else if (message.data.type === "PLAY_AGAIN") {
-        playAgain();
+    const handler = function (e: MessageEvent<Message>) {
+      console.log("handler", e);
+      if (e.data.type === "GAME_OVER") {
+        sendScore({
+          score: Number(e.data.data),
+        });
+      } else if (e.data.type === "NAVIGATE") {
+        start();
+        if (e.data.data === "home") {
+          navigate("/");
+        } else {
+          navigate(`/${e.data.data}`);
+        }
       }
     };
 
@@ -49,31 +51,14 @@ export default function GamePage() {
     };
   }, []);
 
-  function playAgain() {
-    setDidLose(false);
-    setScore(0);
-  }
-
   return (
     <>
-      {!didLose ? (
-        <span>Score: {score}</span>
-      ) : (
-        <>
-          <span>You lost! Score: {score}</span>
-          <button onClick={playAgain}>Play again</button>
-        </>
-      )}
       <iframe
+        autoFocus
         ref={ref}
         width={width / 3}
         height={width / 3}
         src="/src/game/index.html"
-        style={{
-          overflow: didLose ? "hidden" : "auto",
-          pointerEvents: didLose ? "none" : "auto",
-          
-        }}
       ></iframe>
     </>
   );

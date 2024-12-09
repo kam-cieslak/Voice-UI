@@ -12,5 +12,4 @@ public class VoiceUiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(VoiceUiApplication.class, args);
 	}
-
 }

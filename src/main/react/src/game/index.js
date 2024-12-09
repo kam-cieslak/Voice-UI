@@ -1,212 +1,183 @@
-class Snake {
-  constructor() {
-    this.moveDir = {
-      x: 0,
-      y: 0,
-    };
-    this.segments = [
-      {
-        x: 18,
-        y: 19,
-      },
-      {
-        x: 18,
-        y: 18,
-      },
-      {
-        x: 18,
-        y: 17,
-      },
-    ];
-  }
-
-  move() {
-    for (let i = this.segments.length - 1; i >= 1; i--) {
-      this.segments[i].x = this.segments[i - 1].x;
-      this.segments[i].y = this.segments[i - 1].y;
-    }
-    this.segments[0].x += this.moveDir.x;
-    this.segments[0].y += this.moveDir.y;
-  }
-
-  didCollide(applePos) {
-    if (
-      this.segments[0].x === applePos.x &&
-      this.segments[0].y === applePos.y
-    ) {
-      this.segments = [
-        {
-          x: this.segments[0].x,
-          y: this.segments[0].y,
-        },
-        ...this.segments,
-      ];
-      return true;
-    }
-    return false;
-  }
-
-  didLose() {
-    if (
-      this.segments[0].x > 38 ||
-      this.segments[0].x < 0 ||
-      this.segments[0].y > 38 ||
-      this.segments[0].y < 0
-    ) {
-      this.moveDir = {
-        x: 0,
-        y: 0,
-      };
-      this.segments = [
-        {
-          x: 18,
-          y: 19,
-        },
-        {
-          x: 18,
-          y: 18,
-        },
-        {
-          x: 18,
-          y: 17,
-        },
-      ];
-      return true;
-    }
-    for (let i = 1; i < this.segments.length - 1; i++) {
-      if (
-        this.segments[0].x === this.segments[i].x &&
-        this.segments[0].y === this.segments[i].y
-      ) {
-        this.moveDir = {
-          x: 0,
-          y: 0,
-        };
-        this.segments = [
-          {
-            x: 18,
-            y: 19,
-          },
-          {
-            x: 18,
-            y: 18,
-          },
-          {
-            x: 18,
-            y: 17,
-          },
-        ];
-        return true;
-      }
-    }
-    return false;
-  }
-}
-
-function placeApple() {
-  applePos.x = Math.round(Math.random() * 37);
-  applePos.y = Math.round(Math.random() * 37);
-}
-
-let applePos = {
-  x: Math.round(Math.random() * 37),
-  y: Math.round(Math.random() * 37),
-};
-const snake = new Snake();
 const gameBoard = document.getElementById("game-board");
 let score = 0;
-let gameRunning = false;
+let queue = [];
+let globalRecognition;
+let isRunning = true;
+let shouldCheckColissions = false;
+const counter = document.getElementById("counter");
+const playAgainButton = document.getElementById("play-again");
+const gameOverScreen = document.getElementById("game-over-screen");
+const gameOverCounter = document.getElementById("game-over-counter");
+const pageOptions = ["leaderboard", "home"];
+
+let snakeSegments = [
+  {
+    x: 18,
+    y: 19,
+  },
+  {
+    x: 18,
+    y: 18,
+  },
+  {
+    x: 18,
+    y: 17,
+  },
+];
+
+let directions = {
+  x: 0,
+  y: 0,
+};
+
+let applePosition = {
+  x: 0,
+  y: 0,
+};
 
 function timeout(milis) {
   return new Promise(function (resolve) {
     setTimeout(resolve, milis);
   });
 }
-function determineDirections(dir) {
-  if (!gameRunning) {
-    snake.moveDir = {
-      x: 0,
-      y: 0,
-    };
-    return;
+
+function moveSnake() {
+  for (let i = snakeSegments.length - 1; i >= 1; i--) {
+    snakeSegments[i].x = snakeSegments[i - 1].x;
+    snakeSegments[i].y = snakeSegments[i - 1].y;
   }
-  dir = dir.replaceAll(" ", "").toLowerCase();
-  if (dir.includes("up")) {
-    if (snake.moveDir.x !== 1) {
-      snake.moveDir = {
-        x: -1,
-        y: 0,
-      };
+  snakeSegments[0].x += directions.x;
+  snakeSegments[0].y += directions.y;
+}
+
+function placeApple() {
+  applePosition.x = Math.round(Math.random() * 37);
+  applePosition.y = Math.round(Math.random() * 37);
+}
+
+function checkColissions() {
+  if (
+    snakeSegments[0].x > 37 ||
+    snakeSegments[0].x < 1 ||
+    snakeSegments[0].y > 37 ||
+    snakeSegments[0].y < 1
+  ) {
+    return true;
+  }
+  for (let i = 1; i < snakeSegments.length - 1; i++) {
+    if (
+      snakeSegments[0].x === snakeSegments[i].x &&
+      snakeSegments[0].y === snakeSegments[i].y
+    ) {
+      return true;
     }
-  } else if (dir.includes("down")) {
-    if (snake.moveDir.x !== -1) {
-      snake.moveDir = {
-        x: 1,
-        y: 0,
-      };
-    }
-  } else if (dir.includes("left")) {
-    if (snake.moveDir.y !== 1) {
-      snake.moveDir = {
-        x: 0,
-        y: -1,
-      };
-    }
-  } else if (dir.includes("right")) {
-    if (snake.moveDir.y !== -1) {
-      snake.moveDir = {
-        x: 0,
-        y: 1,
-      };
+  }
+  return false;
+}
+
+function checkIfApple() {
+  return (
+    snakeSegments[0].x === applePosition.x &&
+    snakeSegments[0].y === applePosition.y
+  );
+}
+
+function scorePoints() {
+  snakeSegments = [
+    {
+      x: snakeSegments[0].x,
+      y: snakeSegments[0].y,
+    },
+    ...snakeSegments,
+  ];
+  score += 100;
+}
+
+function reset() {
+  snakeSegments = [
+    {
+      x: 18,
+      y: 19,
+    },
+    {
+      x: 18,
+      y: 18,
+    },
+    {
+      x: 18,
+      y: 17,
+    },
+  ];
+  directions = {
+    x: 0,
+    y: 0,
+  };
+  score = 0;
+  placeApple();
+  isRunning = true;
+  shouldCheckColissions = false;
+  gameOverScreen.style.visibility = "hidden";
+  gameOverCounter.innerHTML = "";
+}
+
+function determineCommand(command) {
+  console.log("wchodze tu", command)
+  if (command === "playagain") {
+    reset();
+  } else {
+    if (pageOptions.includes(command)) {
+      window.parent.postMessage({
+        type: "NAVIGATE",
+        data: command,
+      });
     }
   }
 }
 
-function render() {
-  gameBoard.innerHTML = "";
-  const apple = document.createElement("div");
-  apple.setAttribute("class", "apple");
-  apple.style.gridRow = applePos.x;
-  apple.style.gridColumn = applePos.y;
-  gameBoard.append(apple);
-  snake.segments.forEach(function (e, i) {
-    const div = document.createElement("div");
-    if (i === 0) {
-      div.setAttribute("class", "snake-head");
-    } else {
-      div.setAttribute("class", "snake-segment");
-    }
-    div.style.gridRow = e.x;
-    div.style.gridColumn = e.y;
-    gameBoard.append(div);
+function gameOver() {
+  window.parent.postMessage({
+    type: "GAME_OVER",
+    data: String(score),
   });
+  isRunning = false;
+  shouldCheckColissions = false;
+  gameOverCounter.innerHTML = `Your score: ${score}`;
+  gameOverScreen.style.visibility = "visible";
 }
 
 function init() {
   const recognition = new webkitSpeechRecognition();
   const directions = ["up", "down", "left", "right"];
-  const grammar = `#JSGF V1.0; grammar colors; public <color> = ${directions.join(
-    " | "
+  const grammar = `#JSGF V1.0; grammar directions; public <direction> = ${directions.join(
+    " | ",
   )}`;
   const speechRecognitionList = new webkitSpeechGrammarList();
   speechRecognitionList.addFromString(grammar, 1);
   recognition.grammars = speechRecognitionList;
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.lang = "en-US";
-  recognition.interimResults = false;
+  recognition.interimResults = true;
   recognition.maxAlternatives = 1;
   recognition.onresult = function (e) {
-    gameRunning = true;
-    determineDirections(e.results[e.results.length - 1][0].transcript);
+    console.log("iframe", e);
+    const result = e.results[e.results.length - 1][0].transcript.replaceAll(" ", "").trim();
+    if (isRunning) {
+      if (
+        result.includes("left") ||
+        result.includes("right") ||
+        result.includes("up") ||
+        result.includes("down")
+      ) {
+        queue.push(result);
+      }
+    } else {
+      determineCommand(result);
+    }
   };
-  window.addEventListener("focus", function () {
+  recognition.onend = function () {
     recognition.start();
-  });
-  window.addEventListener("blur", function () {
-    recognition.stop();
-  });
+  };
   window.addEventListener("keydown", function (e) {
-    gameRunning = true;
     switch (e.key) {
       case "ArrowUp":
         determineDirections("up");
@@ -221,35 +192,90 @@ function init() {
         determineDirections("right");
         break;
     }
-    console.log(gameRunning);
   });
+  recognition.start();
+  globalRecognition = recognition;
+  playAgainButton.addEventListener("click", () => {
+    reset();
+  });
+  placeApple();
+}
+
+function render() {
+  gameBoard.innerHTML = "";
+  const apple = document.createElement("div");
+  apple.setAttribute("class", "apple");
+  apple.style.gridRow = applePosition.x;
+  apple.style.gridColumn = applePosition.y;
+  gameBoard.append(apple);
+  snakeSegments.forEach(function (e, i) {
+    const div = document.createElement("div");
+    if (i === 0) {
+      div.setAttribute("class", "snake-head");
+    } else {
+      div.setAttribute("class", "snake-segment");
+    }
+    div.style.gridRow = e.x;
+    div.style.gridColumn = e.y;
+    gameBoard.append(div);
+  });
+  counter.innerHTML = score;
+}
+
+function determineDirections(dir) {
+  shouldCheckColissions = true;
+  dir = dir.replaceAll(" ", "").toLowerCase();
+  if (dir.includes("up")) {
+    if (directions.x !== 1) {
+      directions = {
+        x: -1,
+        y: 0,
+      };
+    }
+  } else if (dir.includes("down")) {
+    if (directions.x !== -1) {
+      directions = {
+        x: 1,
+        y: 0,
+      };
+    }
+  } else if (dir.includes("left")) {
+    if (directions.y !== 1) {
+      directions = {
+        x: 0,
+        y: -1,
+      };
+    }
+  } else if (dir.includes("right")) {
+    if (directions.y !== -1) {
+      directions = {
+        x: 0,
+        y: 1,
+      };
+    }
+  }
 }
 
 async function gameLoop() {
   render();
   while (true) {
-    render();
-    snake.move();
-    if (gameRunning) {
-      if (snake.didLose()) {
-        window.parent.postMessage({
-          type: "GAME_OVER",
-          data: String(score),
-        });
-        score = 0;
-        gameRunning = false;
-      }
-      if (snake.didCollide(applePos)) {
-        score += 100;
-        window.parent.postMessage({
-          type: "SCORE_POINT",
-          data: String(score),
-        });
+    if (queue.length > 0) {
+      determineDirections(queue[0]);
+      queue.shift();
+    }
+    if (isRunning) {
+      moveSnake();
+      if (shouldCheckColissions && checkColissions()) {
+        gameOver();
+      } else if (checkIfApple()) {
+        scorePoints();
         placeApple();
       }
+      render();
     }
-    await timeout(500);
+    await timeout(300);
   }
 }
+
 init();
 gameLoop();
